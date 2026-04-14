@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sultan's Data Cleaner & Extractor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C96D;
+    --gold-pale: #F5E6B8;
+    --gold-deep: #9A7230;
+    --gold-bright: #FFD700;
+    --obsidian: #0A0A0A;
+    --ink: #111111;
+    --charcoal: #1A1A1A;
+    --slate: #242424;
+    --mist: #2E2E2E;
+    --text-dim: #888777;
+    --text-muted: #666555;
+    --success: #4CAF80;
+    --danger: #CF6060;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: #0D0D0D;
+    font-family: 'Crimson Pro', Georgia, serif;
+    color: #E8D9A0;
+    min-height: 100vh;
+  }
+
+  .app {
+    background: linear-gradient(160deg, #0D0D0D 0%, #111108 40%, #0E0C06 100%);
+    min-height: 100vh;
+    padding: 0 0 3rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .app::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(201,168,76,0.06) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(201,168,76,0.04) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .crown-bar {
+    background: linear-gradient(90deg, #0A0A0A, #1A1500, #2A2000, #1A1500, #0A0A0A);
+    border-bottom: 1px solid var(--gold-deep);
+    padding: 0.75rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    position: relative;
+  }
+
+  .crown-bar::after {
+    content: '';
+    position: absolute;
+    bottom: -3px; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .crown-icon { font-size: 22px; line-height: 1; }
+
+  .crown-bar-text {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+
+  .header {
+    text-align: center;
+    padding: 2.5rem 1rem 1.5rem;
+    position: relative;
+  }
+
+  .header-ornament {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .ornament-line {
+    height: 1px;
+    width: 80px;
+    background: linear-gradient(90deg, transparent, var(--gold));
+  }
+
+  .ornament-line.rev { background: linear-gradient(90deg, var(--gold), transparent); }
+
+  .ornament-diamond {
+    width: 8px; height: 8px;
+    background: var(--gold);
+    transform: rotate(45deg);
+  }
+
+  .header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    background: linear-gradient(135deg, var(--gold-deep) 0%, var(--gold-bright) 40%, var(--gold-light) 60%, var(--gold-deep) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+    margin-bottom: 0.3rem;
+  }
+
+  .header-subtitle {
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+
+  .main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 1.25rem;
+  }
+
+  .panel {
+    background: linear-gradient(135deg, #141410 0%, #111109 100%);
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold-deep), var(--gold), var(--gold-deep), transparent);
+  }
+
+  .panel-header {
+    padding: 1rem 1.25rem 0.75rem;
+    border-bottom: 1px solid rgba(201,168,76,0.12);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .panel-dot {
+    width: 6px; height: 6px;
+    background: var(--gold);
+    transform: rotate(45deg);
+    flex-shrink: 0;
+  }
+
+  .panel-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  .panel-body { padding: 1.25rem; }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+
+  @media (max-width: 700px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .grid-3 { grid-template-columns: 1fr; }
+  }
+
+  .input-section { margin-bottom: 1.25rem; }
+
+  .label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  textarea, input[type=text] {
+    width: 100%;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 2px;
+    color: #D4C47A;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.95rem;
+    padding: 0.75rem 1rem;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  textarea:focus, input[type=text]:focus {
+    border-color: rgba(201,168,76,0.5);
+    box-shadow: 0 0 0 2px rgba(201,168,76,0.08);
+  }
+
+  textarea { min-height: 130px; line-height: 1.6; }
+
+  .upload-zone {
+    border: 1px dashed rgba(201,168,76,0.3);
+    border-radius: 2px;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: rgba(0,0,0,0.3);
+    position: relative;
+  }
+
+  .upload-zone:hover {
+    border-color: rgba(201,168,76,0.6);
+    background: rgba(201,168,76,0.04);
+  }
+
+  .upload-zone.drag { border-color: var(--gold); background: rgba(201,168,76,0.07); }
+
+  .upload-icon {
+    font-size: 28px;
+    margin-bottom: 0.5rem;
+    display: block;
+    color: var(--gold-deep);
+  }
+
+  .upload-text {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  .upload-text strong { color: var(--gold); font-weight: 400; }
+
+  .upload-zone input[type=file] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  .toggle-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+  }
+
+  .toggle-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 0.8rem;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(201,168,76,0.12);
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .toggle-item:hover { border-color: rgba(201,168,76,0.3); }
+
+  .toggle-item.active {
+    border-color: rgba(201,168,76,0.45);
+    background: rgba(201,168,76,0.06);
+  }
+
+  .toggle-check {
+    width: 14px; height: 14px;
+    border: 1px solid rgba(201,168,76,0.4);
+    border-radius: 1px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 9px;
+    color: var(--gold);
+    transition: all 0.15s;
+  }
+
+  .toggle-item.active .toggle-check {
+    background: rgba(201,168,76,0.2);
+    border-color: var(--gold);
+  }
+
+  .toggle-label {
+    font-size: 0.8rem;
+    color: #B8A862;
+    font-family: 'Crimson Pro', serif;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 0.75rem;
+  }
+
+  .btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.7rem 1.8rem;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-gold {
+    background: linear-gradient(135deg, var(--gold-deep), var(--gold), var(--gold-light));
+    color: var(--obsidian);
+    font-weight: 700;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-gold::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.4s;
+  }
+
+  .btn-gold:hover::after { transform: translateX(100%); }
+  .btn-gold:hover { box-shadow: 0 0 20px rgba(201,168,76,0.3); }
+  .btn-gold:active { transform: scale(0.98); }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid rgba(201,168,76,0.3);
+    color: var(--text-dim);
+  }
+
+  .btn-ghost:hover { border-color: var(--gold-deep); color: var(--gold); }
+  .btn-ghost:active { transform: scale(0.98); }
+
+  .results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+
+  @media (max-width: 650px) { .results-grid { grid-template-columns: 1fr; } }
+
+  .stat-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  @media (max-width: 550px) { .stat-bar { grid-template-columns: repeat(2, 1fr); } }
+
+  .stat-card {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 2px;
+    padding: 0.75rem 1rem;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Cinzel', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-lbl {
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-family: 'Cinzel', serif;
+  }
+
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+    margin-bottom: 1rem;
+    overflow-x: auto;
+  }
+
+  .tab {
+    font-family: 'Cinzel', serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.6rem 1.1rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    white-space: nowrap;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    margin-bottom: -1px;
+  }
+
+  .tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+  .tab:hover:not(.active) { color: var(--gold-deep); }
+
+  .tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    min-height: 50px;
+  }
+
+  .tag {
+    background: rgba(201,168,76,0.08);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 2px;
+    padding: 0.25rem 0.6rem;
+    font-size: 0.82rem;
+    color: #C8B860;
+    font-family: 'Crimson Pro', serif;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .tag:hover { background: rgba(201,168,76,0.15); border-color: var(--gold); }
+
+  .data-list { max-height: 220px; overflow-y: auto; }
+
+  .data-list::-webkit-scrollbar { width: 3px; }
+  .data-list::-webkit-scrollbar-track { background: transparent; }
+  .data-list::-webkit-scrollbar-thumb { background: var(--gold-deep); border-radius: 2px; }
+
+  .data-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid rgba(201,168,76,0.06);
+    font-size: 0.85rem;
+    color: #C8B860;
+  }
+
+  .data-row:last-child { border-bottom: none; }
+
+  .cleaned-output {
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 2px;
+    padding: 1rem;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.9rem;
+    color: #C8B860;
+    min-height: 100px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 250px;
+    overflow-y: auto;
+  }
+
+  .cleaned-output::-webkit-scrollbar { width: 3px; }
+  .cleaned-output::-webkit-scrollbar-thumb { background: var(--gold-deep); }
+
+  .empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+    font-style: italic;
+    font-size: 0.9rem;
+  }
+
+  .empty-ornament { font-size: 2rem; display: block; margin-bottom: 0.5rem; opacity: 0.3; }
+
+  .copy-btn {
+    font-size: 0.65rem;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.1em;
+    background: transparent;
+    border: 1px solid rgba(201,168,76,0.2);
+    color: var(--text-dim);
+    padding: 0.3rem 0.8rem;
+    cursor: pointer;
+    border-radius: 1px;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+
+  .copy-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(201,168,76,0.2), transparent);
+  }
+
+  .divider-text {
+    font-family: 'Cinzel', serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  .alert {
+    padding: 0.6rem 1rem;
+    border-radius: 2px;
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .alert-success { background: rgba(76,175,128,0.08); border: 1px solid rgba(76,175,128,0.25); color: #7BC9A0; }
+  .alert-info { background: rgba(201,168,76,0.06); border: 1px solid rgba(201,168,76,0.2); color: var(--gold-deep); }
+
+  .progress-wrap {
+    display: none;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+  }
+
+  .progress-wrap.show { display: flex; }
+
+  .progress-bar-bg {
+    flex: 1;
+    height: 3px;
+    background: rgba(201,168,76,0.1);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-deep), var(--gold));
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.3s;
+  }
+
+  .progress-text {
+    font-family: 'Cinzel', serif;
+    font-size: 0.6rem;
+    color: var(--gold-deep);
+    white-space: nowrap;
+  }
+
+  .footer-ornament { text-align: center; padding: 1.5rem 0 0; }
+
+  .footer-line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent);
+    margin-bottom: 0.75rem;
+  }
+
+  .footer-text {
+    font-family: 'Cinzel', serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    color: rgba(201,168,76,0.25);
+    text-transform: uppercase;
+  }
+
+  .advanced-section {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(201,168,76,0.08);
+    border-radius: 2px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .advanced-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+
+  .custom-rule-row { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
+  .custom-rule-row input { font-size: 0.8rem; padding: 0.4rem 0.7rem; }
+
+  .word-freq-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0;
+    font-size: 0.82rem;
+    color: #B8A862;
+  }
+
+  .freq-bar {
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold-deep), var(--gold));
+    border-radius: 1px;
+    min-width: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="crown-bar">
+    <span class="crown-icon">♛</span>
+    <span class="crown-bar-text">Sultan's Royal Data Intelligence Suite</span>
+  </div>
+
+  <div class="header">
+    <div class="header-ornament">
+      <div class="ornament-line"></div>
+      <div class="ornament-diamond"></div>
+      <div class="ornament-line rev"></div>
+    </div>
+    <h1>SULTAN'S</h1>
+    <div style="font-family:'Cinzel',serif;font-size:clamp(0.7rem,2vw,1rem);letter-spacing:0.4em;color:var(--gold-deep);margin-bottom:0.4rem;">DATA CLEANER &amp; EXTRACTOR</div>
+    <div class="header-subtitle">Command your data with imperial precision</div>
+    <div class="header-ornament" style="margin-top:1rem;">
+      <div class="ornament-line" style="width:40px;"></div>
+      <div class="ornament-diamond" style="width:5px;height:5px;background:var(--gold-deep);"></div>
+      <div class="ornament-diamond" style="width:7px;height:7px;"></div>
+      <div class="ornament-diamond" style="width:5px;height:5px;background:var(--gold-deep);"></div>
+      <div class="ornament-line rev" style="width:40px;"></div>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <div class="panel" style="margin-bottom:1.25rem;">
+      <div class="panel-header">
+        <div class="panel-dot"></div>
+        <div class="panel-title">I. Input Chamber</div>
+      </div>
+      <div class="panel-body">
+        <div class="grid-2">
+          <div class="input-section">
+            <label class="label">Paste Raw Text</label>
+            <textarea id="rawInput" placeholder="Paste emails, addresses, phone numbers, mixed data... e.g.:&#10;Contact: john.doe@gmail.com ☎ +1-555-0101&#10;Web: https://example.com/page or http://site.org&#10;Location: New York, USA 🇺🇸&#10;Ref: user@domain.co.uk 💼"></textarea>
+          </div>
+          <div class="input-section">
+            <label class="label">Upload File (CSV / TXT / PDF text)</label>
+            <div class="upload-zone" id="dropZone">
+              <input type="file" id="fileInput" accept=".csv,.txt,.pdf,.xlsx,.json" />
+              <span class="upload-icon">⬆</span>
+              <div class="upload-text">
+                <strong>Click to browse</strong> or drag &amp; drop<br>
+                <span style="font-size:0.75rem;">CSV · TXT · JSON · PDF (text-based)</span>
+              </div>
+              <div id="fileLabel" style="margin-top:0.5rem;font-size:0.75rem;color:var(--gold);display:none;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:1.25rem;">
+      <div class="panel-header">
+        <div class="panel-dot"></div>
+        <div class="panel-title">II. Cleaning Edicts</div>
+      </div>
+      <div class="panel-body">
+        <div class="section-divider"><div class="divider-line"></div><div class="divider-text">Core Rules</div><div class="divider-line"></div></div>
+        <div class="toggle-grid" id="toggleGrid"></div>
+        <div class="section-divider"><div class="divider-line"></div><div class="divider-text">Extraction Decrees</div><div class="divider-line"></div></div>
+        <div class="toggle-grid" id="extractGrid"></div>
+        <div class="section-divider"><div class="divider-line"></div><div class="divider-text">Advanced Commands</div><div class="divider-line"></div></div>
+        <div class="advanced-section">
+          <div class="advanced-title">Custom Find &amp; Replace</div>
+          <div id="customRules"></div>
+          <div class="custom-rule-row">
+            <input type="text" id="findVal" placeholder="Find..." style="flex:1;" />
+            <input type="text" id="replaceVal" placeholder="Replace with..." style="flex:1;" />
+            <button class="btn btn-ghost" onclick="addCustomRule()" style="padding:0.4rem 0.8rem;font-size:0.65rem;font-family:'Cinzel',serif;letter-spacing:0.1em;">+ Add</button>
+          </div>
+        </div>
+        <div class="advanced-section">
+          <div class="advanced-title">Regex Pattern (Advanced)</div>
+          <div class="custom-rule-row">
+            <input type="text" id="regexPat" placeholder="e.g. \b[A-Z]{2,}\b" style="flex:2;" />
+            <input type="text" id="regexReplace" placeholder="Replacement" style="flex:1;" />
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-gold" onclick="runCleaner()">⚡ Execute Decree</button>
+          <div class="progress-wrap" id="progressWrap">
+            <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+            <span class="progress-text" id="progressText">Processing...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="resultsSection" style="display:none;">
+      <div class="stat-bar" id="statBar"></div>
+      <div class="panel" style="margin-bottom:1.25rem;">
+        <div class="panel-header">
+          <div class="panel-dot"></div>
+          <div class="panel-title">III. Cleaned Output</div>
+          <div style="margin-left:auto;">
+            <button class="copy-btn" onclick="copyOutput()">Copy</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div id="alertBox" style="display:none;"></div>
+          <div class="cleaned-output" id="cleanedOutput"></div>
+        </div>
+      </div>
+      <div class="panel" style="margin-bottom:1.25rem;">
+        <div class="panel-header">
+          <div class="panel-dot"></div>
+          <div class="panel-title">IV. Extracted Intelligence</div>
+        </div>
+        <div class="panel-body">
+          <div class="tabs" id="extractTabs"></div>
+          <div id="extractContent"></div>
+        </div>
+      </div>
+      <div class="results-grid">
+        <div class="panel">
+          <div class="panel-header"><div class="panel-dot"></div><div class="panel-title">V. Word Frequency</div></div>
+          <div class="panel-body" id="wordFreqPanel"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div class="panel-dot"></div><div class="panel-title">VI. Data Insights</div></div>
+          <div class="panel-body" id="insightsPanel"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-ornament">
+      <div class="footer-line"></div>
+      <div class="footer-text">Sultan's Royal Data Intelligence Suite &nbsp;♛&nbsp; All Rights Reserved</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const CLEAN_TOGGLES = [
+  { id:'emailPrefix', label:'Email → keep username only', def:true },
+  { id:'removeHttp', label:'Remove http:// & https://', def:true },
+  { id:'removeEmoji', label:'Remove emojis only', def:true },
+  { id:'trimSpaces', label:'Normalize whitespace', def:true },
+  { id:'removeSpecial', label:'Remove special symbols', def:false },
+  { id:'lowercase', label:'Lowercase all text', def:false },
+  { id:'removePunct', label:'Strip punctuation', def:false },
+  { id:'removeNumbers', label:'Remove numeric digits', def:false },
+  { id:'removeDupeLines', label:'Remove duplicate lines', def:false },
+  { id:'removeBlankLines', label:'Remove blank lines', def:true },
+  { id:'normalizeNewlines', label:'Normalize line breaks', def:true },
+  { id:'removeParentheses', label:'Remove parentheses & contents', def:false },
+];
+
+const EXTRACT_TOGGLES = [
+  { id:'extEmails', label:'Extract emails', def:true },
+  { id:'extPhones', label:'Extract phone numbers', def:true },
+  { id:'extUrls', label:'Extract URLs', def:true },
+  { id:'extCountries', label:'Extract country mentions', def:true },
+  { id:'extDates', label:'Extract dates', def:true },
+  { id:'extIPs', label:'Extract IP addresses', def:false },
+  { id:'extHashtags', label:'Extract hashtags', def:false },
+  { id:'extMentions', label:'Extract @mentions', def:false },
+  { id:'extNumbers', label:'Extract all numbers', def:false },
+  { id:'extCurrencies', label:'Extract currency amounts', def:false },
+];
+
+const COUNTRIES = ['Afghanistan','Albania','Algeria','Argentina','Australia','Austria','Bangladesh','Belgium','Brazil','Canada','Chile','China','Colombia','Croatia','Czech Republic','Denmark','Egypt','Ethiopia','Finland','France','Germany','Ghana','Greece','Hungary','India','Indonesia','Iran','Iraq','Ireland','Israel','Italy','Japan','Jordan','Kenya','Malaysia','Mexico','Morocco','Netherlands','New Zealand','Nigeria','Norway','Pakistan','Peru','Philippines','Poland','Portugal','Romania','Russia','Saudi Arabia','Singapore','South Africa','South Korea','Spain','Sweden','Switzerland','Thailand','Turkey','UAE','UK','Ukraine','United Arab Emirates','United Kingdom','United States','USA','Vietnam','Zimbabwe'];
+
+let toggleStates = {};
+let customRules = [];
+let currentResult = null;
+let activeTab = 0;
+
+function buildToggles() {
+  const g = document.getElementById('toggleGrid');
+  const e = document.getElementById('extractGrid');
+  CLEAN_TOGGLES.forEach(t => { toggleStates[t.id] = t.def; g.appendChild(makeToggle(t)); });
+  EXTRACT_TOGGLES.forEach(t => { toggleStates[t.id] = t.def; e.appendChild(makeToggle(t)); });
+}
+
+function makeToggle(t) {
+  const d = document.createElement('div');
+  d.className = 'toggle-item' + (t.def ? ' active' : '');
+  d.id = 'tog_' + t.id;
+  d.innerHTML = `<div class="toggle-check">${t.def ? '✓' : ''}</div><span class="toggle-label">${t.label}</span>`;
+  d.onclick = () => {
+    toggleStates[t.id] = !toggleStates[t.id];
+    d.classList.toggle('active', toggleStates[t.id]);
+    d.querySelector('.toggle-check').textContent = toggleStates[t.id] ? '✓' : '';
+  };
+  return d;
+}
+
+function addCustomRule() {
+  const f = document.getElementById('findVal').value.trim();
+  const r = document.getElementById('replaceVal').value;
+  if (!f) return;
+  customRules.push({ find: f, replace: r });
+  renderCustomRules();
+  document.getElementById('findVal').value = '';
+  document.getElementById('replaceVal').value = '';
+}
+
+function renderCustomRules() {
+  const c = document.getElementById('customRules');
+  c.innerHTML = customRules.map((r,i) =>
+    `<div class="data-row"><span style="color:#A08840;">"${r.find}" → "${r.replace}"</span><button onclick="removeRule(${i})" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:12px;">✕</button></div>`
+  ).join('');
+}
+
+function removeRule(i) { customRules.splice(i,1); renderCustomRules(); }
+
+function removeEmojis(str) {
+  return str.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F1E0}-\u{1F1FF}\u{200D}]/gu, '');
+}
+
+function cleanText(raw) {
+  let t = raw;
+  const s = toggleStates;
+  if (s.emailPrefix) t = t.replace(/([a-zA-Z0-9._%+\-]+)@([a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})/g, '$1');
+  if (s.removeHttp) t = t.replace(/https?:\/\//g, '');
+  if (s.removeEmoji) t = removeEmojis(t);
+  if (s.removeParentheses) t = t.replace(/\([^)]*\)/g, '');
+  if (s.removeSpecial) t = t.replace(/[^a-zA-Z0-9\s@.,\-_:\/\n]/g, ' ');
+  if (s.removePunct) t = t.replace(/[^\w\s\n]/g, ' ');
+  if (s.removeNumbers) t = t.replace(/\b\d+\b/g, '');
+  if (s.lowercase) t = t.toLowerCase();
+  customRules.forEach(r => { try { t = t.split(r.find).join(r.replace); } catch(e) {} });
+  const rp = document.getElementById('regexPat').value.trim();
+  if (rp) { try { t = t.replace(new RegExp(rp,'g'), document.getElementById('regexReplace').value); } catch(e) {} }
+  if (s.normalizeNewlines) t = t.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  if (s.removeBlankLines) t = t.split('\n').filter(l => l.trim().length > 0).join('\n');
+  if (s.removeDupeLines) { const seen = new Set(); t = t.split('\n').filter(l => { const k=l.trim(); if(seen.has(k)) return false; seen.add(k); return true; }).join('\n'); }
+  if (s.trimSpaces) t = t.replace(/[ \t]+/g,' ').split('\n').map(l => l.trim()).join('\n');
+  return t;
+}
+
+function extractData(raw) {
+  const result = {};
+  if (toggleStates.extEmails) result.emails = [...new Set((raw.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g)||[]))];
+  if (toggleStates.extPhones) result.phones = [...new Set((raw.match(/(\+?\d[\d\s\-().]{6,}\d)/g)||[]).map(p=>p.trim()).filter(p=>p.replace(/\D/g,'').length>=7))];
+  if (toggleStates.extUrls) result.urls = [...new Set((raw.match(/https?:\/\/[^\s"'<>]+/g)||[]))];
+  if (toggleStates.extCountries) {
+    const found = [];
+    COUNTRIES.forEach(c => { if(new RegExp('\\b'+c+'\\b','i').test(raw)) found.push(c); });
+    result.countries = [...new Set(found)];
+  }
+  if (toggleStates.extDates) result.dates = [...new Set((raw.match(/\b(\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4}|\d{4}[\/-]\d{2}[\/-]\d{2}|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s+\d{1,2},?\s+\d{4}|\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s+\d{4})\b/gi)||[]))];
+  if (toggleStates.extIPs) result.ips = [...new Set((raw.match(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g)||[]))];
+  if (toggleStates.extHashtags) result.hashtags = [...new Set((raw.match(/#[a-zA-Z0-9_]+/g)||[]))];
+  if (toggleStates.extMentions) result.mentions = [...new Set((raw.match(/@[a-zA-Z0-9_]+/g)||[]))];
+  if (toggleStates.extNumbers) result.numbers = [...new Set((raw.match(/\b\d+(?:[.,]\d+)?\b/g)||[]))];
+  if (toggleStates.extCurrencies) result.currencies = [...new Set((raw.match(/[$€£¥₹]\s*[\d,]+(?:\.\d{2})?|\b\d+(?:\.\d{2})?\s*(?:USD|EUR|GBP|JPY|INR|PKR)\b/gi)||[]))];
+  return result;
+}
+
+function wordFreq(text) {
+  const words = text.toLowerCase().replace(/[^\w\s]/g,'').split(/\s+/).filter(w=>w.length>3);
+  const freq = {};
+  words.forEach(w => { freq[w]=(freq[w]||0)+1; });
+  return Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,12);
+}
+
+function showProgress(pct,txt) {
+  document.getElementById('progressWrap').classList.add('show');
+  document.getElementById('progressFill').style.width = pct+'%';
+  document.getElementById('progressText').textContent = txt;
+}
+
+function hideProgress() { document.getElementById('progressWrap').classList.remove('show'); }
+
+function runCleaner() {
+  const raw = document.getElementById('rawInput').value;
+  if (!raw.trim()) { showAlert('info','The throne awaits input. Paste text or upload a file.'); return; }
+  showProgress(20,'Cleaning...');
+  setTimeout(() => {
+    showProgress(50,'Extracting...');
+    setTimeout(() => {
+      showProgress(80,'Analyzing...');
+      setTimeout(() => {
+        const cleaned = cleanText(raw);
+        const extracted = extractData(raw);
+        const freq = wordFreq(cleaned);
+        currentResult = { raw, cleaned, extracted, freq };
+        renderResults(currentResult);
+        showProgress(100,'Done!');
+        setTimeout(hideProgress,800);
+        document.getElementById('resultsSection').style.display='block';
+        document.getElementById('resultsSection').scrollIntoView({behavior:'smooth',block:'start'});
+      },200);
+    },200);
+  },200);
+}
+
+function renderResults(r) {
+  const orig = r.raw.length, clean = r.cleaned.length;
+  const saved = orig > 0 ? Math.round((1-clean/orig)*100) : 0;
+  const totalExtracted = Object.values(r.extracted).reduce((a,v)=>a+v.length,0);
+  document.getElementById('statBar').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${orig.toLocaleString()}</div><div class="stat-lbl">Original Chars</div></div>
+    <div class="stat-card"><div class="stat-num">${clean.toLocaleString()}</div><div class="stat-lbl">Cleaned Chars</div></div>
+    <div class="stat-card"><div class="stat-num">${saved}%</div><div class="stat-lbl">Reduced By</div></div>
+    <div class="stat-card"><div class="stat-num">${totalExtracted}</div><div class="stat-lbl">Items Extracted</div></div>`;
+  document.getElementById('cleanedOutput').textContent = r.cleaned || '(No output after cleaning)';
+  renderExtracted(r.extracted);
+  renderWordFreq(r.freq);
+  renderInsights(r);
+}
+
+function renderExtracted(ext) {
+  const tabs = document.getElementById('extractTabs');
+  const content = document.getElementById('extractContent');
+  const keys = Object.keys(ext).filter(k=>ext[k].length>0);
+  if (!keys.length) { tabs.innerHTML=''; content.innerHTML='<div class="empty-state"><span class="empty-ornament">◇</span>Enable extraction toggles above and re-run.</div>'; return; }
+  const labels = {emails:'Emails',phones:'Phones',urls:'URLs',countries:'Countries',dates:'Dates',ips:'IPs',hashtags:'Hashtags',mentions:'Mentions',numbers:'Numbers',currencies:'Currencies'};
+  tabs.innerHTML = keys.map((k,i)=>`<button class="tab ${i===0?'active':''}" onclick="switchTab(this,${i})" data-idx="${i}">${labels[k]||k} (${ext[k].length})</button>`).join('');
+  activeTab = 0;
+  showTabContent(ext,keys,0);
+}
+
+function switchTab(btn,idx) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  activeTab=idx;
+  const ext=currentResult.extracted;
+  const keys=Object.keys(ext).filter(k=>ext[k].length>0);
+  showTabContent(ext,keys,idx);
+}
+
+function showTabContent(ext,keys,idx) {
+  const key=keys[idx], items=ext[key];
+  const content=document.getElementById('extractContent');
+  if (key==='countries') {
+    content.innerHTML=`<div class="tag-cloud">${items.map(c=>`<span class="tag">${c}</span>`).join('')}</div>`;
+  } else {
+    content.innerHTML=`<div class="data-list">${items.map(item=>`<div class="data-row"><span>${escHtml(item)}</span><button class="copy-btn" onclick="copyText('${escHtml(item).replace(/'/g,"\\'")}')">copy</button></div>`).join('')}</div>`;
+  }
+}
+
+function renderWordFreq(freq) {
+  const p=document.getElementById('wordFreqPanel');
+  if (!freq.length) { p.innerHTML='<div class="empty-state">No significant words found.</div>'; return; }
+  const max=freq[0][1];
+  p.innerHTML=freq.map(([w,c])=>`<div class="word-freq-item"><span style="min-width:90px;color:#C8B860;">${w}</span><div class="freq-bar" style="width:${Math.round((c/max)*120)}px;"></div><span style="color:var(--text-muted);font-size:0.75rem;">${c}</span></div>`).join('');
+}
+
+function renderInsights(r) {
+  const p=document.getElementById('insightsPanel');
+  const lines=r.cleaned.split('\n').filter(l=>l.trim());
+  const words=r.cleaned.trim().split(/\s+/).filter(Boolean);
+  const sentences=r.cleaned.split(/[.!?]+/).filter(s=>s.trim().length>5).length;
+  const avgWord=words.length?Math.round(r.cleaned.replace(/\s/g,'').length/words.length*10)/10:0;
+  const insights=[
+    {label:'Lines',val:lines.length},{label:'Words',val:words.length},
+    {label:'Sentences',val:sentences},{label:'Avg word len',val:avgWord},
+    {label:'Emails found',val:(r.extracted.emails||[]).length},
+    {label:'URLs found',val:(r.extracted.urls||[]).length},
+    {label:'Phones found',val:(r.extracted.phones||[]).length},
+    {label:'Countries',val:(r.extracted.countries||[]).length},
+  ];
+  p.innerHTML=insights.map(i=>`<div class="data-row"><span style="color:var(--text-dim);font-size:0.8rem;">${i.label}</span><span style="color:var(--gold-light);font-family:'Cinzel',serif;font-size:0.85rem;">${i.val}</span></div>`).join('');
+}
+
+function showAlert(type,msg) {
+  const box=document.getElementById('alertBox');
+  if (!box) return;
+  box.style.display='flex';
+  box.className='alert alert-'+(type==='info'?'info':'success');
+  box.innerHTML=`<span>◈</span><span>${msg}</span>`;
+  setTimeout(()=>{box.style.display='none';},4000);
+}
+
+function copyOutput() {
+  navigator.clipboard.writeText(document.getElementById('cleanedOutput').textContent)
+    .then(()=>showAlert('success','Cleaned text copied to clipboard.')).catch(()=>{});
+}
+
+function copyText(t) { navigator.clipboard.writeText(t).catch(()=>{}); }
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+document.getElementById('fileInput').addEventListener('change',function(e){
+  const file=e.target.files[0]; if(!file) return;
+  document.getElementById('fileLabel').style.display='block';
+  document.getElementById('fileLabel').textContent='✓ '+file.name;
+  const reader=new FileReader();
+  reader.onload=ev=>{document.getElementById('rawInput').value=ev.target.result;};
+  reader.readAsText(file);
+});
+
+const dz=document.getElementById('dropZone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{
+  e.preventDefault(); dz.classList.remove('drag');
+  const file=e.dataTransfer.files[0]; if(!file) return;
+  document.getElementById('fileLabel').style.display='block';
+  document.getElementById('fileLabel').textContent='✓ '+file.name;
+  const reader=new FileReader();
+  reader.onload=ev=>{document.getElementById('rawInput').value=ev.target.result;};
+  reader.readAsText(file);
+});
+
+buildToggles();
+</script>
+</body>
+</html>
